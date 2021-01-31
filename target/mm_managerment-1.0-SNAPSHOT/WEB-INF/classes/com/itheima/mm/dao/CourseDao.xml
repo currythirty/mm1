@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.CourseDao">
+        <!--查询总数量-->
+        <select id="total" parameterType="QueryPageBean" resultType="Long">
+            SELECT count(*) FROM t_course c
+            <where>
+                <if test="queryParams != null">
+                      <if test="queryParams.name != null and queryParams.name.length()>0">
+                          and c.name like "%"#{queryParams.name}"%"
+                      </if>
+                      <if test="queryParams.status != null ">
+                        and c.is_show = #{queryParams.status}
+                      </if>
+                </if>
+            </where>
+        </select>
+        <!--查询列表-->
+        <select id="pageList" parameterType="QueryPageBean" resultType="Course">
+                  SELECT
+                     c.id,
+                     c.name,
+                     c.is_show isShow,
+                     c.create_date createDate,
+                     (SELECT username FROM t_user WHERE id=c.user_id) creator,
+                     (SELECT count(*) FROM t_catalog WHERE course_id=c.id) catalogQty,
+                     (SELECT count(*) FROM t_question WHERE course_id=c.id) questionQty,
+                     (SELECT count(*) FROM t_tag WHERE course_id=c.id) tagQty
+                  from t_course c
+                  <where>
+                      <if test="queryParams != null">
+                        <if test="queryParams.name != null and queryParams.name.length()>0">
+                        and c.name like "%"#{queryParams.name}"%"
+                        </if>
+                         <if test="queryParams.status != null ">
+                        and c.is_show = #{queryParams.status}
+                         </if>
+                      </if>
+                  </where>
+            limit #{offset}, #{pageSize}
+        </select>
+
+        <!--添加学科-->
+        <insert id="add" parameterType="Course">
+            insert into t_course(name,create_date,is_show,user_id) values (#{name},#{createDate},#{isShow},#{userId})
+        </insert>
+
+        <!--修改学科-->
+        <update id="edit" parameterType="Course">
+            update t_course set name=#{name},is_show=#{isShow} where id=#{id}
+        </update>
+
+        <!--删除学科-->
+        <delete id="delete" parameterType="String">
+            delete from t_course where id=#{id}
+        </delete>
+        <!--查询是否有关联外键-->
+        <select id="tagCount" parameterType="String" resultType="Long">
+            select count(*) from t_tag where course_id = #{courseId}
+        </select>
+
+        <select id="catalogCount" parameterType="String" resultType="Long">
+            select count(*) from t_catalog where course_id = #{courseId}
+        </select>
+
+        <select id="questionCount" parameterType="String" resultType="Long">
+            select count(*) from t_question where course_id = #{courseId}
+        </select>
+
+
+
+        <!--查询所有学科下拉菜单-->
+        <select id="simpleList" resultType="Course">
+            select id,name from t_course
+        </select>
+
+        <!--新增试题界面显示所有的学科列表-->
+
+        <select id="complexList" resultMap="courseMap">
+            select id,name from t_course
+        </select>
+        <!--使用手动映射，将catalogList和tagList封装到CourseMap-->
+        <resultMap id="courseMap" type="Course">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+
+            <collection property="catalogList" ofType="Catalog"
+                        select="com.itheima.mm.dao.CatalogDao.findByCourseId" column="id"/>
+
+            <collection property="tagList" ofType="Tag"
+                        select="com.itheima.mm.dao.TagDao.findByCourseId" column="id"/>
+        </resultMap>
+
+
+
+</mapper>

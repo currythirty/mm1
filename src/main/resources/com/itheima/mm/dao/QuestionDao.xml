@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.QuestionDao">
+    <!--查询总数量-->
+       <select id="total" parameterType="QueryPageBean" resultType="Long">
+           select count(*) from t_question q
+           <where>
+               q.is_classic=0
+               <if test="queryParams != null">
+                   <if test="queryParams.courseId != null">
+                      and q.course_id = #{queryParams.courseId}
+                   </if>
+                   <if test="queryParams.difficulty != null">
+                       and q.course_id = #{queryParams.difficulty}
+                   </if>
+                   <if test="queryParams.type != null">
+                       and q.course_id = #{queryParams.type}
+                   </if>
+                   <if test="queryParams.keyWord != null and queryParams.keyWord.length()>0" >
+                       and q.subject like "%"#{queryParams.keyWord}"%"
+                   </if>
+               </if>
+           </where>
+       </select>
+
+    <!--基础题目列表显示-->
+    <select id="pageList" parameterType="QueryPageBean" resultType="Question">
+        select
+        q.id,
+        q.id+1000 number,
+        (select name from t_course where id=q.course_id) courseName,
+        q.subject,
+        q.type,
+        q.difficulty,
+        q.create_date createDate,
+        (select username from t_user where id=q.user_id) creator,
+        (select count(*) from tr_member_question where question_id=q.id) usedQty
+      from t_question q
+        <where>
+            q.is_classic=0
+            <if test="queryParams != null">
+                <if test="queryParams.courseId != null">
+                    and q.course_id = #{queryParams.courseId}
+                </if>
+                <if test="queryParams.difficulty != null">
+                    and q.course_id = #{queryParams.difficulty}
+                </if>
+                <if test="queryParams.type != null">
+                    and q.course_id = #{queryParams.type}
+                </if>
+                <if test="queryParams.keyWord != null and queryParams.keyWord.length()>0" >
+                    and q.subject like "%"#{queryParams.keyWord}"%"
+                </if>
+            </if>
+        </where>
+        limit #{offset},#{pageSize}
+    </select>
+
+
+    <insert id="add" parameterType="Question">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_question(
+        number,
+        subject,
+        type,
+        difficulty,
+        analysis,
+        analysis_video,
+        remark,
+        is_classic,
+        status,
+        review_status,
+        create_date,
+        user_id,
+        company_id,
+        catalog_id,
+        course_id
+        ) values(
+        #{number},
+        #{subject},
+        #{type},
+        #{difficulty},
+        #{analysis},
+        #{analysisVideo},
+        #{remark},
+        #{isClassic},
+        #{status},
+        #{reviewStatus},
+        #{createDate},
+        #{userId},
+        #{companyId},
+        #{catalogId},
+        #{courseId}
+        )
+    </insert>
+
+    <!--审核-->
+    <update id="updateReviewStatus" >
+        update t_question set
+        is_classic=#{isClassic},
+        status=#{status},
+        review_status=#{reviewStatus}
+        where id=#{questionId}
+    </update>
+
+
+</mapper>
