@@ -25,6 +25,7 @@ public class CompanyController {
     @RequestMapping("/company/complexList")
     public void complexList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            System.out.println("helloWorld");
             //1.完成功能：查询所有企业
             List<Company> companyList = companyService.complexList();
             //2.处理结果
