@@ -31,6 +31,7 @@ public class CompanyController {
             System.out.println("helloworld4");
             System.out.println("helloworld5");
             System.out.println("helloworld5");
+            //我爱刘梦
             //1.完成功能：查询所有企业
             List<Company> companyList = companyService.complexList();
             //2.处理结果
