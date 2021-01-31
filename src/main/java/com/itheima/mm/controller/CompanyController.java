@@ -26,6 +26,7 @@ public class CompanyController {
     public void complexList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             System.out.println("helloWorld");
+            System.out.println("helloWorld2");
             //1.完成功能：查询所有企业
             List<Company> companyList = companyService.complexList();
             //2.处理结果
