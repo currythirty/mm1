@@ -39,6 +39,7 @@ public class UserController{
         try {
             //销毁对象
             System.out.println("第一次提交！");
+            System.out.println("第二次提交！");
             request.getSession().invalidate();
             JsonUtils.printResult(response,new Result(true,"退出成功！"));
         } catch (Exception e) {
